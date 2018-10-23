@@ -23,9 +23,31 @@ pub fn mpow(base: i64, exponent: i64, modulus: i64) -> i64 {
     return result;
 }
 
-// pub fn mult_inverse(num, modulus) -> Option<i64> {
+pub fn mult_inverse(num: i64, modulus: i64) -> Option<i64> {
+    let mut r = Vec::new();
+    let mut a = Vec::new();
 
-// }
+    r.push(modulus);
+    r.push(num);
+    a.push(0);
+    a.push(1);
+
+    let mut i = 1;
+    while r[i] != 0 && r[i] != 1 {
+        i = i + 1;
+        r.push(r[i-2] % r[i-1]);
+        let q = r[i-2] / r[i-1];
+        let nexta = (a[i-2] - (q * a[i-1])) % modulus;
+        a.push(nexta);
+    }
+
+    if r[i] == 0 {
+        return None;
+    } else {
+        if a[i] < 0 { return Some(a[i] + modulus); } else { return Some(a[i]) }
+    }
+}
+
 fn digits(n: i64) -> Vec<i64> {
     fn x_inner(n: i64, xs: &mut Vec<i64>) {
         if n >= 10 {
@@ -97,6 +119,15 @@ mod tests {
         assert_eq!(is_divisible(102030, 5), true);
         assert_eq!(is_divisible(102030, 99), false);
         assert_eq!(is_divisible(12345, 10), false);
+    }
+
+    #[test]
+    fn test_mult_inverse() {
+        assert_eq!(mult_inverse(6, 7), Some(6));
+        assert_eq!(mult_inverse(99, 100), Some(99));
+        assert_eq!(mult_inverse(5, 7), Some(3));
+        assert_eq!(mult_inverse(1, 7), Some(1));
+        assert_eq!(mult_inverse(37, 12345), Some(6673));
     }
 
 }
